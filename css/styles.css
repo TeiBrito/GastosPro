@@ -205,6 +205,62 @@ canvas {
     font-size: 0.7rem;
 }
 
+/* Recent Expenses */
+.recent-expenses {
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+.expense-item {
+    background: var(--surface-color);
+    border-radius: 16px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255,255,255,0.03);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.expense-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.expense-concept {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.expense-date-cat {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.expense-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.expense-val {
+    font-weight: 700;
+}
+
+.delete-expense-btn {
+    color: var(--danger);
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.delete-expense-btn:hover {
+    opacity: 1;
+}
+
 /* Category Grid */
 .section-title {
     font-size: 1.1rem;

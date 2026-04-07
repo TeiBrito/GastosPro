@@ -11,11 +11,11 @@ if ('serviceWorker' in navigator) {
 let state = {
     income: 0,
     categories: [
-        { id: '1', name: 'Comida', limit: 200, spent: 0 },
-        { id: '2', name: 'Gasolina', limit: 100, spent: 0 },
-        { id: '3', name: 'Suscripciones', limit: 50, spent: 0 },
-        { id: '4', name: 'Ocio', limit: 150, spent: 0 },
-        { id: '5', name: 'Ezra', limit: 100, spent: 0 }
+        { id: '1', name: 'Comida', limit: 200 },
+        { id: '2', name: 'Gasolina', limit: 100 },
+        { id: '3', name: 'Suscripciones', limit: 50 },
+        { id: '4', name: 'Ocio', limit: 150 },
+        { id: '5', name: 'Ezra', limit: 100 }
     ],
     expenses: [],
     archives: [],
@@ -27,6 +27,7 @@ let balanceChart = null;
 
 // DOM Elements
 const categoryList = document.getElementById('category-list');
+const recentExpensesList = document.getElementById('recent-expenses-list');
 const totalSpentEl = document.getElementById('total-spent');
 const totalBudgetEl = document.getElementById('total-budget');
 const totalIncomeEl = document.getElementById('total-income');
@@ -77,9 +78,7 @@ function initChart() {
         },
         options: {
             cutout: '75%',
-            plugins: {
-                legend: { display: false }
-            }
+            plugins: { legend: { display: false } }
         }
     });
 }
@@ -98,15 +97,23 @@ function updateChart(spent, incomeValue) {
 // --- Rendering ---
 function render() {
     renderCategories();
+    renderRecentExpenses();
     renderDashboard();
     renderModalBadges();
     lucide.createIcons();
 }
 
+function getSpentByCategory(catId) {
+    return state.expenses
+        .filter(exp => exp.categoryId === catId)
+        .reduce((sum, exp) => sum + exp.amount, 0);
+}
+
 function renderCategories() {
     categoryList.innerHTML = '';
     state.categories.forEach(cat => {
-        const percent = (cat.spent / cat.limit) * 100;
+        const spent = getSpentByCategory(cat.id);
+        const percent = (spent / cat.limit) * 100;
         const colorClass = percent >= 100 ? 'over' : (percent > 90 ? 'warning' : '');
         
         const card = document.createElement('div');
@@ -120,7 +127,7 @@ function renderCategories() {
                     <div class="category-name">${cat.name}</div>
                 </div>
                 <div class="category-meta">
-                    <div class="category-amount">${cat.spent.toFixed(2)} €</div>
+                    <div class="category-amount">${spent.toFixed(2)} €</div>
                     <div class="category-limit">de ${cat.limit.toFixed(2)} €</div>
                 </div>
             </div>
@@ -132,8 +139,39 @@ function renderCategories() {
     });
 }
 
+function renderRecentExpenses() {
+    recentExpensesList.innerHTML = '';
+    const recent = [...state.expenses].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
+    
+    if (recent.length === 0) {
+        recentExpensesList.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px; font-size:0.8rem;">Sin gastos este mes.</div>';
+        return;
+    }
+
+    recent.forEach(exp => {
+        const cat = state.categories.find(c => c.id === exp.categoryId) || { name: 'Sin cat.' };
+        const date = new Date(exp.date);
+        
+        const item = document.createElement('div');
+        item.className = 'expense-item';
+        item.innerHTML = `
+            <div class="expense-info">
+                <div class="expense-concept">${exp.concept || 'Gasto'}</div>
+                <div class="expense-date-cat">${date.toLocaleDateString()} • ${cat.name}</div>
+            </div>
+            <div class="expense-actions">
+                <div class="expense-val">${exp.amount.toFixed(2)} €</div>
+                <button onclick="deleteExpense('${exp.id}')" class="delete-expense-btn">
+                    <i data-lucide="trash-2" style="width: 16px;"></i>
+                </button>
+            </div>
+        `;
+        recentExpensesList.appendChild(item);
+    });
+}
+
 function renderDashboard() {
-    const totalSpent = state.categories.reduce((acc, cat) => acc + cat.spent, 0);
+    const totalSpent = state.expenses.reduce((acc, exp) => acc + exp.amount, 0);
     const totalLimit = state.categories.reduce((acc, cat) => acc + cat.limit, 0);
     const balance = state.income - totalSpent;
     const percent = totalLimit > 0 ? (totalSpent / totalLimit) * 100 : 0;
@@ -185,6 +223,17 @@ function closeIncomeModal() {
     setTimeout(() => incomeModal.style.display = 'none', 300);
 }
 
+function openHistoryModal() {
+    renderHistory();
+    historyModal.style.display = 'flex';
+    setTimeout(() => historyModal.querySelector('.modal').classList.add('active'), 10);
+}
+
+function closeHistoryModal() {
+    historyModal.querySelector('.modal').classList.remove('active');
+    setTimeout(() => historyModal.style.display = 'none', 300);
+}
+
 let editingCategoryId = null;
 function openCategoryModal(catId = null) {
     editingCategoryId = catId;
@@ -212,51 +261,13 @@ function closeCategoryModal() {
     setTimeout(() => categoryModal.style.display = 'none', 300);
 }
 
-function openHistoryModal() {
-    renderHistory();
-    historyModal.style.display = 'flex';
-    setTimeout(() => historyModal.querySelector('.modal').classList.add('active'), 10);
-}
-
-function closeHistoryModal() {
-    historyModal.querySelector('.modal').classList.remove('active');
-    setTimeout(() => historyModal.style.display = 'none', 300);
-}
-
-function renderHistory() {
-    historyListContainer.innerHTML = '';
-    if (state.archives.length === 0) {
-        historyListContainer.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">No hay meses finalizados todavía.</div>';
-        return;
+// --- Actions ---
+function deleteExpense(id) {
+    if (confirm('¿Eliminar este gasto?')) {
+        state.expenses = state.expenses.filter(e => e.id !== id);
+        save();
+        render();
     }
-
-    state.archives.forEach(item => {
-        const totalSpent = item.categories.reduce((acc, c) => acc + c.spent, 0);
-        const balance = item.income - totalSpent;
-        const date = new Date(item.date);
-        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-        
-        const div = document.createElement('div');
-        div.className = 'history-item';
-        div.innerHTML = `
-            <div class="history-date">${months[date.getMonth()]} ${date.getFullYear()}</div>
-            <div class="history-stats">
-                <div class="history-stat">
-                    <span>Ingresos</span>
-                    <strong>${item.income.toFixed(2)}€</strong>
-                </div>
-                <div class="history-stat">
-                    <span>Gastos</span>
-                    <strong>${totalSpent.toFixed(2)}€</strong>
-                </div>
-                <div class="history-stat">
-                    <span>Balance</span>
-                    <strong style="color: ${balance < 0 ? '#ef4444' : 'var(--success)'}">${balance.toFixed(2)}€</strong>
-                </div>
-            </div>
-        `;
-        historyListContainer.appendChild(div);
-    });
 }
 
 // --- Form Handling ---
@@ -265,14 +276,20 @@ document.getElementById('expense-form').onsubmit = (e) => {
     const amount = parseFloat(document.getElementById('expense-amount').value);
     const concept = document.getElementById('expense-concept').value;
     
-    const catIndex = state.categories.findIndex(c => c.id === state.selectedCategoryId);
-    if (catIndex !== -1) {
-        const cat = state.categories[catIndex];
-        cat.spent += amount;
-        
-        if (cat.spent > cat.limit) {
+    const cat = state.categories.find(c => c.id === state.selectedCategoryId);
+    if (cat) {
+        const currentSpent = getSpentByCategory(cat.id);
+        if (currentSpent + amount > cat.limit) {
             showNotification(`¡Presupuesto superado en ${cat.name}!`);
         }
+        
+        state.expenses.push({
+            id: Date.now().toString(),
+            amount,
+            concept,
+            categoryId: state.selectedCategoryId,
+            date: new Date().toISOString()
+        });
         
         save();
         render();
@@ -301,7 +318,7 @@ document.getElementById('category-form').onsubmit = (e) => {
         cat.name = name;
         cat.limit = limit;
     } else {
-        state.categories.push({ id: Date.now().toString(), name, limit, spent: 0 });
+        state.categories.push({ id: Date.now().toString(), name, limit });
     }
     
     save();
@@ -312,52 +329,57 @@ document.getElementById('category-form').onsubmit = (e) => {
 document.getElementById('cat-delete-btn').onclick = () => {
     if (confirm('¿Eliminar esta categoría?')) {
         state.categories = state.categories.filter(c => c.id !== editingCategoryId);
+        // Clean up expenses for deleted category? Maybe better to keep them as "Uncategorized"
         save();
         render();
         closeCategoryModal();
     }
 };
 
-// --- Cycle Management ---
 document.getElementById('new-cycle-btn').onclick = () => {
-    if (confirm('¿Quieres cerrar el mes actual y empezar uno nuevo? Se guardará un histórico y se reiniciarán los gastos e ingresos.')) {
-        // Archive
+    if (confirm('¿Cerrar el mes actual y empezar uno nuevo? Se guardará un histórico.')) {
         state.archives.push({
             date: state.currentDate,
             income: state.income,
-            categories: JSON.parse(JSON.stringify(state.categories))
+            categories: state.categories.map(c => ({...c, spent: getSpentByCategory(c.id)}))
         });
-        
-        // Reset
         state.income = 0;
-        state.categories.forEach(c => c.spent = 0);
         state.expenses = [];
-        
-        // Advance month
         const d = new Date(state.currentDate);
         d.setMonth(d.getMonth() + 1);
         state.currentDate = d.toISOString();
-        
         updateDateDisplay();
         save();
         render();
     }
 };
 
-// --- Notifications ---
+function renderHistory() {
+    historyListContainer.innerHTML = '';
+    if (state.archives.length === 0) {
+        historyListContainer.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">Sin meses finalizados.</div>';
+        return;
+    }
+    state.archives.forEach(item => {
+        const totalSpent = item.categories.reduce((acc, c) => acc + (c.spent || 0), 0);
+        const balance = item.income - totalSpent;
+        const date = new Date(item.date);
+        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `<div class="history-date">${months[date.getMonth()]} ${date.getFullYear()}</div><div class="history-stats"><div class="history-stat"><span>Ingresos</span><strong>${item.income.toFixed(2)}€</strong></div><div class="history-stat"><span>Gastos</span><strong>${totalSpent.toFixed(2)}€</strong></div><div class="history-stat"><span>Balance</span><strong style="color: ${balance < 0 ? '#ef4444' : 'var(--success)'}">${balance.toFixed(2)}€</strong></div></div>`;
+        historyListContainer.appendChild(div);
+    });
+}
+
 function showNotification(message) {
     const toast = document.createElement('div');
     toast.style.cssText = `position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #ef4444; color: white; padding: 15px 25px; border-radius: 12px; z-index: 1000; box-shadow: 0 10px 20px rgba(0,0,0,0.3); font-weight: 600; animation: fadeIn 0.3s ease-out;`;
     toast.textContent = message;
     document.body.appendChild(toast);
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.5s';
-        setTimeout(() => toast.remove(), 500);
-    }, 3000);
+    setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.5s'; setTimeout(() => toast.remove(), 500); }, 3000);
 }
 
-// Events
 document.getElementById('add-expense-btn').onclick = openExpenseModal;
 document.getElementById('close-expense-modal').onclick = closeExpenseModal;
 document.getElementById('close-category-modal').onclick = closeCategoryModal;
