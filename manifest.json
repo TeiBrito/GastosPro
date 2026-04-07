@@ -1,0 +1,17 @@
+{
+  "name": "GastoPro",
+  "short_name": "GastoPro",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0c0e14",
+  "theme_color": "#9d50bb",
+  "description": "Control de gastos minimalista y moderno",
+  "icons": [
+    {
+      "src": "icons/app_icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
