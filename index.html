@@ -19,6 +19,9 @@
         <header>
             <h1>GastoPro</h1>
             <div class="header-actions">
+                <button class="btn-secondary" id="history-btn">
+                    <i data-lucide="history" style="width: 14px;"></i>
+                </button>
                 <button class="btn-secondary" id="new-cycle-btn">
                     <i data-lucide="rotate-ccw" style="width: 14px;"></i>
                     <span>Nuevo Mes</span>
@@ -144,6 +147,19 @@
                 <button type="submit" class="submit-btn" id="cat-submit-btn">Guardar Categoría</button>
                 <button type="button" id="cat-delete-btn" class="submit-btn" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; margin-top: 10px; display: none;">Eliminar Categoría</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal for history -->
+    <div class="modal-overlay" id="history-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Historial Mensual</div>
+                <button class="close-btn" id="close-history-modal">×</button>
+            </div>
+            <div class="history-list" id="history-list-container">
+                <!-- Archive items will be injected here -->
+            </div>
         </div>
     </div>
 

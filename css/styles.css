@@ -166,6 +166,45 @@ canvas {
     cursor: pointer;
 }
 
+/* History */
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.history-item {
+    background: rgba(255,255,255,0.03);
+    border-radius: 16px;
+    padding: 15px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.history-date {
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+.history-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    font-size: 0.8rem;
+}
+
+.history-stat {
+    display: flex;
+    flex-direction: column;
+}
+
+.history-stat span {
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+}
+
 /* Category Grid */
 .section-title {
     font-size: 1.1rem;

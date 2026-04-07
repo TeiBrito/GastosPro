@@ -35,7 +35,9 @@ const totalProgressBar = document.getElementById('total-progress');
 const expenseModal = document.getElementById('expense-modal');
 const categoryModal = document.getElementById('category-modal');
 const incomeModal = document.getElementById('income-modal');
+const historyModal = document.getElementById('history-modal');
 const modalCategoryBadges = document.getElementById('modal-category-badges');
+const historyListContainer = document.getElementById('history-list-container');
 
 // --- Initialization ---
 function init() {
@@ -210,6 +212,53 @@ function closeCategoryModal() {
     setTimeout(() => categoryModal.style.display = 'none', 300);
 }
 
+function openHistoryModal() {
+    renderHistory();
+    historyModal.style.display = 'flex';
+    setTimeout(() => historyModal.querySelector('.modal').classList.add('active'), 10);
+}
+
+function closeHistoryModal() {
+    historyModal.querySelector('.modal').classList.remove('active');
+    setTimeout(() => historyModal.style.display = 'none', 300);
+}
+
+function renderHistory() {
+    historyListContainer.innerHTML = '';
+    if (state.archives.length === 0) {
+        historyListContainer.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">No hay meses finalizados todavía.</div>';
+        return;
+    }
+
+    state.archives.forEach(item => {
+        const totalSpent = item.categories.reduce((acc, c) => acc + c.spent, 0);
+        const balance = item.income - totalSpent;
+        const date = new Date(item.date);
+        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `
+            <div class="history-date">${months[date.getMonth()]} ${date.getFullYear()}</div>
+            <div class="history-stats">
+                <div class="history-stat">
+                    <span>Ingresos</span>
+                    <strong>${item.income.toFixed(2)}€</strong>
+                </div>
+                <div class="history-stat">
+                    <span>Gastos</span>
+                    <strong>${totalSpent.toFixed(2)}€</strong>
+                </div>
+                <div class="history-stat">
+                    <span>Balance</span>
+                    <strong style="color: ${balance < 0 ? '#ef4444' : 'var(--success)'}">${balance.toFixed(2)}€</strong>
+                </div>
+            </div>
+        `;
+        historyListContainer.appendChild(div);
+    });
+}
+
 // --- Form Handling ---
 document.getElementById('expense-form').onsubmit = (e) => {
     e.preventDefault();
@@ -313,5 +362,7 @@ document.getElementById('add-expense-btn').onclick = openExpenseModal;
 document.getElementById('close-expense-modal').onclick = closeExpenseModal;
 document.getElementById('close-category-modal').onclick = closeCategoryModal;
 document.getElementById('close-income-modal').onclick = closeIncomeModal;
+document.getElementById('history-btn').onclick = openHistoryModal;
+document.getElementById('close-history-modal').onclick = closeHistoryModal;
 
 init();
