@@ -31,7 +31,8 @@ body {
     max-width: 500px;
     margin: 0 auto;
     padding: 20px;
-    padding-bottom: 100px; /* Space for bottom nav */
+    padding-bottom: 100px;
+    /* Space for bottom nav */
 }
 
 /* Header */
@@ -58,8 +59,8 @@ h1 {
     border-radius: 24px;
     padding: 25px;
     margin-bottom: 25px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .dashboard-card .label {
@@ -98,7 +99,7 @@ h1 {
 .stat-item {
     font-size: 0.8rem;
     padding: 10px;
-    background: rgba(255,255,255,0.03);
+    background: rgba(255, 255, 255, 0.03);
     border-radius: 12px;
 }
 
@@ -123,7 +124,7 @@ h1 {
     border-radius: 24px;
     padding: 20px;
     margin-bottom: 25px;
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 canvas {
@@ -139,8 +140,8 @@ canvas {
 }
 
 .btn-secondary {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--text-primary);
     padding: 8px 12px;
     border-radius: 8px;
@@ -152,7 +153,7 @@ canvas {
 }
 
 .btn-secondary:hover {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Income Specific */
@@ -176,10 +177,10 @@ canvas {
 }
 
 .history-item {
-    background: rgba(255,255,255,0.03);
+    background: rgba(255, 255, 255, 0.03);
     border-radius: 16px;
     padding: 15px;
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .history-date {
@@ -219,7 +220,7 @@ canvas {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
-    border: 1px solid rgba(255,255,255,0.03);
+    border: 1px solid rgba(255, 255, 255, 0.03);
     animation: fadeIn 0.3s ease-out;
 }
 
@@ -284,7 +285,7 @@ canvas {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    border: 1px solid rgba(255,255,255,0.03);
+    border: 1px solid rgba(255, 255, 255, 0.03);
     transition: transform 0.2s;
 }
 
@@ -358,7 +359,7 @@ canvas {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.8);
+    background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(5px);
     display: none;
     align-items: flex-end;
@@ -409,10 +410,11 @@ canvas {
     margin-bottom: 8px;
 }
 
-input, select {
+input,
+select {
     width: 100%;
     background: #0c0e14;
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 15px;
     color: white;
@@ -451,7 +453,7 @@ input:focus {
     padding: 10px 20px;
     background: #0c0e14;
     border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     white-space: nowrap;
     cursor: pointer;
 }
@@ -468,8 +470,15 @@ input:focus {
 
 /* Animations */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .category-card {

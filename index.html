@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GastoPro - Minimalist Expense Tracker</title>
+    <title>TeiLoAhorraste - Minimalist Expense Tracker</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0c0e14">
@@ -17,7 +17,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>GastoPro</h1>
+            <h1>TeiLoAhorraste</h1>
             <div class="header-actions">
                 <button class="btn-secondary" id="history-btn">
                     <i data-lucide="history" style="width: 14px;"></i>
@@ -57,6 +57,16 @@
         <!-- Chart Section -->
         <div class="chart-card">
             <canvas id="balanceChart"></canvas>
+        </div>
+
+        <!-- History Chart Section -->
+        <div id="history-chart-section" style="display: none; margin-top: 20px;">
+            <div class="section-title">
+                <span>Evolución de Gastos</span>
+            </div>
+            <div class="chart-card">
+                <canvas id="historyChart"></canvas>
+            </div>
         </div>
 
         <div class="section-title">

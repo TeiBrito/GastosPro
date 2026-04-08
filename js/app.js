@@ -24,6 +24,7 @@ let state = {
 };
 
 let balanceChart = null;
+let historyChart = null;
 
 // DOM Elements
 const categoryList = document.getElementById('category-list');
@@ -42,18 +43,24 @@ const historyListContainer = document.getElementById('history-list-container');
 
 // --- Initialization ---
 function init() {
-    const savedState = localStorage.getItem('gastoProState');
+    const oldState = localStorage.getItem('gastoProState');
+    const savedState = localStorage.getItem('TeiLoAhorrasteState');
+    
     if (savedState) {
         state = JSON.parse(savedState);
+    } else if (oldState) {
+        state = JSON.parse(oldState);
+        save(); // Migrate to new key
     }
     
     updateDateDisplay();
     initChart();
+    initHistoryChart();
     render();
 }
 
 function save() {
-    localStorage.setItem('gastoProState', JSON.stringify(state));
+    localStorage.setItem('TeiLoAhorrasteState', JSON.stringify(state));
 }
 
 function updateDateDisplay() {
@@ -92,6 +99,73 @@ function updateChart(spent, incomeValue) {
         '#2d313e'
     ];
     balanceChart.update();
+}
+
+// --- Historical Chart ---
+function initHistoryChart() {
+    const ctx = document.getElementById('historyChart').getContext('2d');
+    historyChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Gastado',
+                data: [],
+                backgroundColor: '#9d50bb',
+                borderRadius: 8,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => `${context.parsed.y.toFixed(2)} €`
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: { color: '#94a3b8', font: { size: 10 } }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#94a3b8', font: { size: 10 } }
+                }
+            }
+        }
+    });
+    updateHistoryChart();
+}
+
+function updateHistoryChart() {
+    if (!historyChart || state.archives.length === 0) {
+        document.getElementById('history-chart-section').style.display = 'none';
+        return;
+    }
+    
+    document.getElementById('history-chart-section').style.display = 'block';
+    
+    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    
+    // Take last 6 months
+    const lastMonths = state.archives.slice(-6);
+    
+    historyChart.data.labels = lastMonths.map(item => {
+        const d = new Date(item.date);
+        return `${months[d.getMonth()]} ${d.getFullYear().toString().substr(-2)}`;
+    });
+    
+    historyChart.data.datasets[0].data = lastMonths.map(item => {
+        return item.categories.reduce((acc, c) => acc + (c.spent || 0), 0);
+    });
+    
+    historyChart.update();
 }
 
 // --- Rendering ---
@@ -350,6 +424,7 @@ document.getElementById('new-cycle-btn').onclick = () => {
         state.currentDate = d.toISOString();
         updateDateDisplay();
         save();
+        updateHistoryChart();
         render();
     }
 };
